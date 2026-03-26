@@ -10,15 +10,19 @@ function App() {
   const [file, setFile] = useState(null);
   const [preview, setPreview] = useState(null);
   const [showForm, setShowForm] = useState(false);
-
+  const [selectable, setSelectable] = useState(false);
 
 
   function toggleForm(){
     setShowForm(!showForm);
   }
 
+  function toggleSelectable(){
+    setSelectable(!selectable);
+  }
 
   function handleChange(e){
+    setShowForm(!showForm);
     const selected = e.target.files[0];
 
     if (selected){
@@ -39,11 +43,9 @@ function App() {
         <label htmlFor="file">Choose a file: </label>
         <input type='file' id='file' name='file' required onChange={handleChange}/>
       </div>
-      <button type='submit'>Upload</button>
     </form>
     :null}
-    <Tools />
-    <ImageComponent image={preview}/>
+    <ImageComponent image={preview} file={file} selectable={selectable} triggerSelect={toggleSelectable}/>
      </div>
   )
 }

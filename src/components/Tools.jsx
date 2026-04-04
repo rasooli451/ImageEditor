@@ -2,13 +2,19 @@
 
 
 
-export default function Tools({file, switchSelect}){
+export default function Tools({switchSelect, unimportantfunc}){
 
     function handleCrop(){
         switchSelect();
     }
+
+    function toggleForm(e){
+        console.log(e.target.dataset.identity);
+        unimportantfunc(e.target.dataset.identity);
+    }
+
     return <div className="tools">
-        <button className="button" type="button" >Resize</button>
+        <button className="button" type="button" onClick={toggleForm} data-identity="Resize">Resize</button>
         <button className="button" type="button" onClick={handleCrop}>Crop</button>
         <button className="button" type="button">Rotate</button>
         <button className="button" type="button">Flip</button>

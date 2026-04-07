@@ -3,7 +3,7 @@ import { useRef, useState } from "react"
 
 
 
-export default function Resize({resizeFunc}){
+export default function Resize({handleFunc}){
 
     const [width, setWidth] = useState("");
     const [height, setHeight] = useState("");
@@ -25,7 +25,7 @@ export default function Resize({resizeFunc}){
         }
         else{
             setErrorState(false);
-            resizeFunc(width, height, keepAspect.current.checked ? true: false);
+            handleFunc(width, height, keepAspect.current.checked ? true: false);
 
         }
     }

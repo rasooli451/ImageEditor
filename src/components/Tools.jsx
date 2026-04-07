@@ -16,8 +16,8 @@ export default function Tools({switchSelect, unimportantfunc}){
     return <div className="tools">
         <button className="button" type="button" onClick={toggleForm} data-identity="Resize">Resize</button>
         <button className="button" type="button" onClick={handleCrop}>Crop</button>
-        <button className="button" type="button">Rotate</button>
-        <button className="button" type="button">Flip</button>
+        <button className="button" type="button" onClick={toggleForm} data-identity="Rotate">Rotate</button>
+        <button className="button" type="button" onClick={toggleForm} data-identity="Flip">Flip</button>
         <button className="button" type="button">Convert</button>
         <button className="button" type="button">Compress</button>
         <button className="button" type="button">Thumbnail</button>

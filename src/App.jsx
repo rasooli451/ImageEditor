@@ -1,9 +1,11 @@
-import { useState , useEffect} from 'react'
+import { useState , useEffect, useRef} from 'react'
 import './App.css'
 
 import ImageComponent from './components/ImageComponent';
 import Tools from './components/Tools';
 import Resize from './components/forms/Resize';
+import Rotate from './components/forms/Rotate';
+import Flip from './components/forms/Flip';
 
 function App() {
 
@@ -14,9 +16,18 @@ function App() {
   const [selectable, setSelectable] = useState(false);
   const [moreOptions, setMoreOptions] = useState(false);
   const [FormComponent, setFormComponent] = useState(null);
+  const [handler, setHandler] = useState(null);
+  const fileRef = useRef(null);
 
   const Components = {
-    Resize : Resize
+    Resize, Rotate,Flip
+  };
+
+
+  const functions = {
+    Resize : (width, height, aspectRatio)=> applyResizing(width, height, aspectRatio),
+    Rotate : (angle)=> applyRotatation(angle),
+    Flip : (direction)=> applyFlip(direction)
   };
 
 
@@ -28,6 +39,10 @@ function App() {
   };
 }, [preview]);
 
+  useEffect(()=>{
+    fileRef.current = file;
+  }, [file])
+
   function toggleForm(){
     setShowForm(!showForm);
   }
@@ -36,6 +51,7 @@ function App() {
   function toggleOptions(identity){
     setMoreOptions(!moreOptions);
     setFormComponent(()=> Components[identity]);
+    setHandler(()=> functions[identity]);
   }
 
   function toggleSelectable(){
@@ -67,37 +83,24 @@ function App() {
     })
     .then(response => response.blob())
     .then(blob => {
-      // Create a URL for the blob
 
       const newFile = blobToFile(blob, "editedimage.jpg");
       setFile(newFile);
-      const url = URL.createObjectURL(blob);
-
-      console.log(blob);
+      const url = URL.createObjectURL(newFile);
       setPreview(url);
-
-      // Create a link to download the image
-      /*const a = document.createElement('a');
-      a.href = url;
-      a.download = 'resized.jpg';
-      a.click();
-
-      // Clean up by revoking the URL
-      URL.revokeObjectURL(url);*/
     })
     .catch(error => console.error('Error:', error));
       }
 
 
     function crop(cropObject){
-        console.log(cropObject);
         const formData = new FormData();
         
         formData.append('file', file);
-        formData.append('x', String(cropObject.x));
-        formData.append('y', String(cropObject.y));
-        formData.append('width', String(cropObject.width));
-        formData.append('height', String(cropObject.height));
+        formData.append('x', cropObject.x);
+        formData.append('y', cropObject.y);
+        formData.append('width', cropObject.width);
+        formData.append('height', cropObject.height);
 
         fetch('https://oyyi.xyz/api/image/crop', {
           method: 'POST',
@@ -105,9 +108,9 @@ function App() {
         })
         .then(response => response.blob())
         .then(blob => {
-          // Create a URL for the blob
-          const url = URL.createObjectURL(blob);
           const newFile = blobToFile(blob, "editedimage.jpg");
+          const url = URL.createObjectURL(newFile);
+          
           setFile(newFile);
           setPreview(url);
          
@@ -119,6 +122,51 @@ function App() {
         return new File([blob], filename, {
          type: blob.type,
         });
+      }
+
+
+      function applyRotatation(degree){
+        const formData = new FormData();
+        formData.append('file', fileRef.current);
+        formData.append('angle', degree);
+        formData.append('expand', 'true');
+        formData.append('background_color', 'white');
+        console.log("called");
+        console.log(preview);
+        fetch('https://oyyi.xyz/api/image/rotate', {
+          method: 'POST',
+          body: formData
+        })
+        .then(response => response.blob())
+        .then(blob => {
+          const newFile = blobToFile(blob, "editedimage.jpg");
+          const url = URL.createObjectURL(newFile);
+          
+          setFile(newFile);
+          setPreview(url);
+        })
+        .catch(error => console.error('Error:', error));
+      }
+
+
+      function applyFlip(direction){
+        const formData = new FormData();
+        formData.append('file', fileRef.current);
+        formData.append('mode', direction);
+
+        fetch('https://oyyi.xyz/api/image/flip', {
+          method: 'POST',
+          body: formData
+        })
+        .then(response => response.blob())
+        .then(blob => {
+          const newFile = blobToFile(blob, "editedimage.jpg");
+          const url = URL.createObjectURL(newFile);
+          
+          setFile(newFile);
+          setPreview(url);
+        })
+        .catch(error => console.error('Error:', error));
       }
 
   return (
@@ -135,7 +183,7 @@ function App() {
     </form>
     :null}
     <ImageComponent image={preview} file={file} selectable={selectable} triggerSelect={toggleSelectable} formSelection={(identity)=>toggleOptions(identity)} cropFunc={(cropObj)=> crop(cropObj)}/>
-      {moreOptions ? <FormComponent resizeFunc={(width, height, aspectRatio)=> applyResizing(width, height, aspectRatio)}/> : null}
+      {moreOptions ? <FormComponent handleFunc={handler}/> : null}
         {preview == null ? null : <a href={preview} download="EditedImage.jpg" target="_self">Download</a>}
      </div>
   )

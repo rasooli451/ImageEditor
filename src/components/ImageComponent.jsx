@@ -6,7 +6,7 @@ import Tools from "./Tools"
 import ReactCrop from "react-image-crop";
 import "react-image-crop/dist/ReactCrop.css";
 
-export default function ImageComponent({image,file, selectable, triggerSelect, formSelection, cropFunc}){
+export default function ImageComponent({image, selectable, triggerSelect, formSelection, cropFunc, compressFunc, BGremoval}){
 
     const [crop, setCrop] = useState(null);
     const [displayApplyCropButton, setDisplayApplyCropButton] = useState(false);
@@ -42,7 +42,7 @@ export default function ImageComponent({image,file, selectable, triggerSelect, f
     }
 
     return <div className="display">
-        <Tools switchSelect={tempFunc} unimportantfunc={(identity)=> passUpFormSelection(identity)} />
+        <Tools switchSelect={tempFunc} unimportantfunc={(identity)=> passUpFormSelection(identity)} Compress={compressFunc} removeBG={BGremoval}/>
         <div className="ImageContainer">
             { selectable ? 
             <ReactCrop crop={crop} onChange={(c) =>setCrop(c)} unit="px" key={image}>

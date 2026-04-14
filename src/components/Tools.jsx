@@ -2,14 +2,13 @@
 
 
 
-export default function Tools({switchSelect, unimportantfunc}){
+export default function Tools({switchSelect, unimportantfunc, Compress, removeBG}){
 
     function handleCrop(){
         switchSelect();
     }
 
     function toggleForm(e){
-        console.log(e.target.dataset.identity);
         unimportantfunc(e.target.dataset.identity);
     }
 
@@ -18,11 +17,11 @@ export default function Tools({switchSelect, unimportantfunc}){
         <button className="button" type="button" onClick={handleCrop}>Crop</button>
         <button className="button" type="button" onClick={toggleForm} data-identity="Rotate">Rotate</button>
         <button className="button" type="button" onClick={toggleForm} data-identity="Flip">Flip</button>
-        <button className="button" type="button">Convert</button>
-        <button className="button" type="button">Compress</button>
-        <button className="button" type="button">Thumbnail</button>
+        <button className="button" type="button"onClick={toggleForm} data-identity="Convert">Convert</button>
+        <button className="button" type="button" onClick={Compress}>Compress</button>
+        <button className="button" type="button" onClick={toggleForm} data-identity="Thumbnail" >Thumbnail</button>
         <button className="button" type="button">Color adjustments</button>
         <button className="button" type="button">Filters & Effects</button>
-        <button className="button" type="button">Remove Background</button>
+        <button className="button" type="button" onClick={removeBG}>Remove Background</button>
     </div>
 }

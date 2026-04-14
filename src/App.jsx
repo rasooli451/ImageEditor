@@ -6,11 +6,14 @@ import Tools from './components/Tools';
 import Resize from './components/forms/Resize';
 import Rotate from './components/forms/Rotate';
 import Flip from './components/forms/Flip';
+import Convert from './components/forms/Convert';
+import Thumbnail from './components/forms/Thumbnail';
 
 function App() {
 
 
   const [file, setFile] = useState(null);
+  const [fileName, setFileName] = useState("");
   const [preview, setPreview] = useState(null);
   const [showForm, setShowForm] = useState(false);
   const [selectable, setSelectable] = useState(false);
@@ -20,14 +23,16 @@ function App() {
   const fileRef = useRef(null);
 
   const Components = {
-    Resize, Rotate,Flip
+    Resize, Rotate,Flip,Convert, Thumbnail
   };
 
 
   const functions = {
     Resize : (width, height, aspectRatio)=> applyResizing(width, height, aspectRatio),
     Rotate : (angle)=> applyRotatation(angle),
-    Flip : (direction)=> applyFlip(direction)
+    Flip : (direction)=> applyFlip(direction),
+    Convert: (target)=> ConvertFile(target),
+    Thumbnail : (width, height, crop)=> GenerateThumbnail(width, height, crop)
   };
 
 
@@ -64,8 +69,7 @@ function App() {
 
     if (selected){
       setFile(selected);
-      console.log(selected);
-
+      setFileName(selected.name);
       const previewURL = URL.createObjectURL(selected);
       setPreview(previewURL);
     }
@@ -101,6 +105,7 @@ function App() {
         formData.append('y', cropObject.y);
         formData.append('width', cropObject.width);
         formData.append('height', cropObject.height);
+        
 
         fetch('https://oyyi.xyz/api/image/crop', {
           method: 'POST',
@@ -169,6 +174,105 @@ function App() {
         .catch(error => console.error('Error:', error));
       }
 
+      function ConvertFile(target){
+        const formData = new FormData();
+        formData.append('file', fileRef.current);
+        formData.append('target_format', target);
+
+        fetch('https://oyyi.xyz/api/image/convert', {
+          method: 'POST',
+          body: formData
+        })
+        .then(response => response.blob())
+        .then(blob => {
+          const newFile = blobToFile(blob, "editedimage.jpg");
+          const url = URL.createObjectURL(newFile);
+          const a = document.createElement('a');
+          a.href = url;
+          a.setAttribute("download", "");
+          a.click();
+
+          URL.revokeObjectURL(url);
+        })
+        .catch(error => console.error('Error:', error));
+      }
+
+
+      function Compress(){
+        const formData = new FormData();
+        formData.append('file', fileRef.current);
+        formData.append('quality', '75');
+
+        fetch('https://oyyi.xyz/api/image/compress', {
+          method: 'POST',
+          body: formData
+        })
+        .then(response => response.blob())
+        .then(blob => {
+          const newFile = blobToFile(blob, "editedimage.jpg");
+          const url = URL.createObjectURL(newFile);
+          const a = document.createElement('a');
+          a.href = url;
+          a.setAttribute("download", fileName);
+          a.click();
+
+          URL.revokeObjectURL(url);
+        })
+        .catch(error => console.error('Error:', error));
+
+      }
+
+
+
+      function GenerateThumbnail(width, height, crop){
+
+        const formData = new FormData();
+        formData.append('file', fileRef.current);
+        formData.append('width', width);
+        formData.append('height', height);
+        formData.append('crop', crop);
+
+        fetch('https://oyyi.xyz/api/image/thumbnail', {
+          method: 'POST',
+          body: formData
+        })
+        .then(response => response.blob())
+        .then(blob => {
+          const url = URL.createObjectURL(blob);
+
+          const a = document.createElement('a');
+          a.href = url;
+          a.setAttribute("download", fileName);
+          a.click();
+          URL.revokeObjectURL(url);
+        })
+        .catch(error => console.error('Error:', error));
+
+      }
+
+
+      function removeBackground(){
+        const formData = new FormData();
+        formData.append('file', fileRef.current);
+
+        fetch('https://oyyi.xyz/api/image/remove-bg', {
+          method: 'POST',
+          body: formData
+        })
+        .then(response => response.blob())
+        .then(blob => {
+          const url = URL.createObjectURL(blob);
+
+          const a = document.createElement('a');
+          a.href = url;
+          a.setAttribute("download", fileName);
+          a.click();
+
+          URL.revokeObjectURL(url);
+        })
+        .catch(error => console.error('Error:', error));
+              }
+
   return (
    <div className='content'>
     <h1>Image Editor</h1>
@@ -182,11 +286,13 @@ function App() {
       </div>
     </form>
     :null}
-    <ImageComponent image={preview} file={file} selectable={selectable} triggerSelect={toggleSelectable} formSelection={(identity)=>toggleOptions(identity)} cropFunc={(cropObj)=> crop(cropObj)}/>
+    <ImageComponent image={preview} file={file} selectable={selectable} triggerSelect={toggleSelectable} formSelection={(identity)=>toggleOptions(identity)} cropFunc={(cropObj)=> crop(cropObj)} compressFunc={Compress} BGremoval={removeBackground}/>
       {moreOptions ? <FormComponent handleFunc={handler}/> : null}
-        {preview == null ? null : <a href={preview} download="EditedImage.jpg" target="_self">Download</a>}
+        {preview == null ? null : <a href={preview} download={fileName} target="_self">Download</a>}
      </div>
   )
 }
 
 export default App;
+
+

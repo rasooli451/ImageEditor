@@ -6,13 +6,12 @@ import Tools from "./Tools"
 import ReactCrop from "react-image-crop";
 import "react-image-crop/dist/ReactCrop.css";
 
-export default function ImageComponent({image, selectable, triggerSelect, formSelection, cropFunc, compressFunc, BGremoval}){
+export default function ImageComponent({image, selectable, triggerSelect, formSelection, cropFunc, compressFunc, BGremoval, adjustments}){
 
     const [crop, setCrop] = useState(null);
     const [displayApplyCropButton, setDisplayApplyCropButton] = useState(false);
     const [naturalImageMeta, setNaturalImageMeta] = useState(null);
     const [displayImageMeta, setDisplayImageMeta] = useState(null);
-
 
 
     function tempFunc(){
@@ -46,15 +45,21 @@ export default function ImageComponent({image, selectable, triggerSelect, formSe
         <div className="ImageContainer">
             { selectable ? 
             <ReactCrop crop={crop} onChange={(c) =>setCrop(c)} unit="px" key={image}>
-                 <img src={image} alt="To crop" onLoad={(e)=> {
+                 <img src={image} className="preview" alt="To crop" onLoad={(e)=> {
                     const img = e.target;
                     setNaturalImageMeta({width : img.naturalWidth, height : img.naturalHeight});
                     const rect = img.getBoundingClientRect();
                     setDisplayImageMeta({width : rect.width, height: rect.height});
-                 }}/>
+                 }} style={{filter: 
+            `brightness(${adjustments.brightness}%)
+             contrast(${adjustments.contrast}%)
+             grayscale(${adjustments.grayscale}%)`}}/>
             </ReactCrop>: 
             image == null ? <h2>Upload an image to display</h2>: <div>
-            <img src={image} />
+            <img src={image} className="preview" style={{filter: 
+            `brightness(${adjustments.brightness}%)
+             contrast(${adjustments.contrast}%)
+             grayscale(${adjustments.grayscale}%)`}}/>
             </div> 
             }
             {displayApplyCropButton ? <button onClick={applyCrop}>Crop</button> : null}

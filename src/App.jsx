@@ -8,23 +8,38 @@ import Rotate from './components/forms/Rotate';
 import Flip from './components/forms/Flip';
 import Convert from './components/forms/Convert';
 import Thumbnail from './components/forms/Thumbnail';
+import ColorAdjustments from './components/forms/ColorAdjustments';
 
 function App() {
 
 
   const [file, setFile] = useState(null);
+  const [tempFile, setTempFile] = useState(null);
   const [fileName, setFileName] = useState("");
   const [preview, setPreview] = useState(null);
   const [showForm, setShowForm] = useState(false);
   const [selectable, setSelectable] = useState(false);
   const [moreOptions, setMoreOptions] = useState(false);
   const [FormComponent, setFormComponent] = useState(null);
+  const [colorAjustments, setColorAdjustments] = useState({brightness: "100", contrast: "100", grayscale: "0", threshold: "128"});
   const [handler, setHandler] = useState(null);
   const fileRef = useRef(null);
 
   const Components = {
-    Resize, Rotate,Flip,Convert, Thumbnail
+    Resize, Rotate,Flip,Convert, Thumbnail, ColorAdjustments
   };
+
+
+
+
+
+  function updateAdjustments(adjustments){
+    setColorAdjustments(adjustments);
+  }
+
+
+
+
 
 
   const functions = {
@@ -32,7 +47,8 @@ function App() {
     Rotate : (angle)=> applyRotatation(angle),
     Flip : (direction)=> applyFlip(direction),
     Convert: (target)=> ConvertFile(target),
-    Thumbnail : (width, height, crop)=> GenerateThumbnail(width, height, crop)
+    Thumbnail : (width, height, crop)=> GenerateThumbnail(width, height, crop),
+    ColorAdjustments : (what, adjustments) => applyColorAdjustments(what, adjustments)
   };
 
 
@@ -57,6 +73,9 @@ function App() {
     setMoreOptions(!moreOptions);
     setFormComponent(()=> Components[identity]);
     setHandler(()=> functions[identity]);
+    setColorAdjustments({brightness: "100", contrast: "100", grayscale: "0", threshold: "128"});
+    if (file != null)
+        revertPreview();
   }
 
   function toggleSelectable(){
@@ -72,6 +91,7 @@ function App() {
       setFileName(selected.name);
       const previewURL = URL.createObjectURL(selected);
       setPreview(previewURL);
+      setColorAdjustments({brightness: "100", contrast: "100", grayscale: "0", threshold: "128"});
     }
   }
 
@@ -154,6 +174,19 @@ function App() {
       }
 
 
+      function fileToImage(file) {
+        return new Promise((resolve) => {
+          const img = new Image();
+          const url = URL.createObjectURL(file);
+
+          img.onload = () => {
+            URL.revokeObjectURL(url); 
+            resolve(img);
+          };
+
+          img.src = url;
+        });
+      }
       function applyFlip(direction){
         const formData = new FormData();
         formData.append('file', fileRef.current);
@@ -273,6 +306,94 @@ function App() {
         .catch(error => console.error('Error:', error));
               }
 
+      function applyToCanvas(img, adjustments){
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d");
+        canvas.width = img.naturalWidth;
+        canvas.height = img.naturalHeight;
+
+        ctx.filter = [
+        `brightness(${adjustments.brightness}%)`,
+        `contrast(${adjustments.contrast}%)`,
+        `grayscale(${adjustments.grayscale}%)`
+      ].join(" ");
+        ctx.drawImage(img, 0, 0);
+
+        return new Promise((resolve)=> {
+          canvas.toBlob((blob)=> {
+            resolve(new File([blob],fileName, {type: blob.type} ))
+          })
+        })
+      };
+
+      async function applyColorAdjustments(what, adjustments){
+        if (what == "basics"){
+          console.log(true);
+          const img = await fileToImage(file);
+          const newFile = await applyToCanvas(img, adjustments);
+
+          setFile(newFile);
+          setPreview(URL.createObjectURL(newFile));
+          setColorAdjustments({brightness: "100", contrast: "100", grayscale: "0", threshold: "128"});
+        }
+        else if (what == "threshold"){
+          const formData = new FormData();
+          formData.append('file', fileRef.current);
+          formData.append('threshold_value', adjustments);
+
+          fetch('https://oyyi.xyz/api/image/threshold', {
+            method: 'POST',
+            body: formData
+          })
+          .then(response => response.blob())
+          .then(blob => {
+          const newFile = blobToFile(blob, "editedimage.jpg");
+          const url = URL.createObjectURL(newFile);
+          
+          setTempFile(newFile);
+          setPreview(url);
+          })
+          .catch(error => console.error('Error:', error));
+                  }
+          else if(what == "colorChannel"){
+            if (adjustments == 'D'){
+              revertPreview();
+            }
+            else{
+              const formData = new FormData();
+              formData.append('file', fileRef.current);
+              formData.append('channel', adjustments);
+
+            fetch('https://oyyi.xyz/api/image/isolate-channel', {
+              method: 'POST',
+              body: formData
+            })
+            .then(response => response.blob())
+            .then(blob => {
+             const newFile = blobToFile(blob, "editedimage.jpg");
+             const url = URL.createObjectURL(newFile);
+          
+             setTempFile(newFile);
+             setPreview(url);
+            })
+            .catch(error => console.error('Error:', error));
+            }
+            }
+            
+      }
+
+      function revertPreview(){
+        const url = URL.createObjectURL(file);
+        setPreview(url);
+      }
+
+      function saveThreshold(){
+        setFile(tempFile);
+        setTempFile(null);
+        const url = URL.createObjectURL(tempFile);
+        setPreview(url);
+      }
+
   return (
    <div className='content'>
     <h1>Image Editor</h1>
@@ -286,8 +407,8 @@ function App() {
       </div>
     </form>
     :null}
-    <ImageComponent image={preview} file={file} selectable={selectable} triggerSelect={toggleSelectable} formSelection={(identity)=>toggleOptions(identity)} cropFunc={(cropObj)=> crop(cropObj)} compressFunc={Compress} BGremoval={removeBackground}/>
-      {moreOptions ? <FormComponent handleFunc={handler}/> : null}
+    <ImageComponent image={preview} file={file} selectable={selectable} triggerSelect={toggleSelectable} formSelection={(identity)=>toggleOptions(identity)} cropFunc={(cropObj)=> crop(cropObj)} compressFunc={Compress} BGremoval={removeBackground} adjustments={colorAjustments}/>
+      {moreOptions ? <FormComponent handleFunc={handler} adjustments={colorAjustments} setAdjustments={updateAdjustments} revert={revertPreview} save={saveThreshold}/> : null}
         {preview == null ? null : <a href={preview} download={fileName} target="_self">Download</a>}
      </div>
   )

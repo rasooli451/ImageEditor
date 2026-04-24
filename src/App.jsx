@@ -8,8 +8,13 @@ import Rotate from './components/forms/Rotate';
 import Flip from './components/forms/Flip';
 import Convert from './components/forms/Convert';
 import Thumbnail from './components/forms/Thumbnail';
-import ColorAdjustments from './components/forms/ColorAdjustments';
-
+import BasicAdjustments from './components/forms/BasicAdjustments';
+import Threshold from './components/forms/Threshold';
+import Isolation from './components/forms/Isolation';
+import Sepia from './components/forms/Sepia';
+import Invert from './components/forms/Invert';
+import Tint from './components/forms/Tint';
+import Gamma from './components/forms/Gamma';
 function App() {
 
 
@@ -21,12 +26,12 @@ function App() {
   const [selectable, setSelectable] = useState(false);
   const [moreOptions, setMoreOptions] = useState(false);
   const [FormComponent, setFormComponent] = useState(null);
-  const [colorAjustments, setColorAdjustments] = useState({brightness: "100", contrast: "100", grayscale: "0", threshold: "128"});
+  const [colorAjustments, setColorAdjustments] = useState({brightness: "100", contrast: "100", grayscale: "0"});
   const [handler, setHandler] = useState(null);
   const fileRef = useRef(null);
 
   const Components = {
-    Resize, Rotate,Flip,Convert, Thumbnail, ColorAdjustments
+    Resize, Rotate,Flip,Convert, Thumbnail, BasicAdjustments,Threshold, Isolation, Sepia, Invert, Tint, Gamma
   };
 
 
@@ -48,7 +53,13 @@ function App() {
     Flip : (direction)=> applyFlip(direction),
     Convert: (target)=> ConvertFile(target),
     Thumbnail : (width, height, crop)=> GenerateThumbnail(width, height, crop),
-    ColorAdjustments : (what, adjustments) => applyColorAdjustments(what, adjustments)
+    BasicAdjustments: (adjustments) => applyBasicAdjustments(adjustments),
+    Threshold: (threshold)=> applyThreshold(threshold),
+    Isolation: (colorChannel)=> applyIsolation(colorChannel),
+    Sepia : () => applySepia(),
+    Invert : () => applyInvertion(),
+    Tint: (color, Intensity) => applyTint(color, Intensity),
+    Gamma: (gamma) => applyGamma(gamma)
   };
 
 
@@ -73,7 +84,7 @@ function App() {
     setMoreOptions(!moreOptions);
     setFormComponent(()=> Components[identity]);
     setHandler(()=> functions[identity]);
-    setColorAdjustments({brightness: "100", contrast: "100", grayscale: "0", threshold: "128"});
+    setColorAdjustments({brightness: "100", contrast: "100", grayscale: "0"});
     if (file != null)
         revertPreview();
   }
@@ -91,7 +102,7 @@ function App() {
       setFileName(selected.name);
       const previewURL = URL.createObjectURL(selected);
       setPreview(previewURL);
-      setColorAdjustments({brightness: "100", contrast: "100", grayscale: "0", threshold: "128"});
+      setColorAdjustments({brightness: "100", contrast: "100", grayscale: "0"});
     }
   }
 
@@ -326,22 +337,23 @@ function App() {
         })
       };
 
-      async function applyColorAdjustments(what, adjustments){
-        if (what == "basics"){
-          console.log(true);
-          const img = await fileToImage(file);
-          const newFile = await applyToCanvas(img, adjustments);
 
-          setFile(newFile);
-          setPreview(URL.createObjectURL(newFile));
-          setColorAdjustments({brightness: "100", contrast: "100", grayscale: "0", threshold: "128"});
-        }
-        else if (what == "threshold"){
-          const formData = new FormData();
-          formData.append('file', fileRef.current);
-          formData.append('threshold_value', adjustments);
+      async function applyBasicAdjustments(adjustments){
+        const img = await fileToImage(file);
+        const newFile = await applyToCanvas(img, adjustments);
 
-          fetch('https://oyyi.xyz/api/image/threshold', {
+        setFile(newFile);
+        setPreview(URL.createObjectURL(newFile));
+        setColorAdjustments({brightness: "100", contrast: "100", grayscale: "0"});
+      }
+
+
+      function applyThreshold(threshold){
+        const formData = new FormData();
+        formData.append('file', fileRef.current);
+        formData.append('threshold_value', threshold);
+
+        fetch('https://oyyi.xyz/api/image/threshold', {
             method: 'POST',
             body: formData
           })
@@ -354,15 +366,17 @@ function App() {
           setPreview(url);
           })
           .catch(error => console.error('Error:', error));
-                  }
-          else if(what == "colorChannel"){
-            if (adjustments == 'D'){
+      }
+
+
+      function applyIsolation(colorChannel){
+        if (colorChannel == 'D'){
               revertPreview();
             }
             else{
               const formData = new FormData();
               formData.append('file', fileRef.current);
-              formData.append('channel', adjustments);
+              formData.append('channel', colorChannel);
 
             fetch('https://oyyi.xyz/api/image/isolate-channel', {
               method: 'POST',
@@ -378,14 +392,97 @@ function App() {
             })
             .catch(error => console.error('Error:', error));
             }
-            }
-            
+      }
+
+      function applySepia(){
+        const formData = new FormData();
+        formData.append('file', fileRef.current);
+
+      fetch('https://oyyi.xyz/api/image/sepia', {
+        method: 'POST',
+        body: formData
+      })
+      .then(response => response.blob())
+      .then(blob => {
+        const newFile = blobToFile(blob, "editedimage.jpg");
+        const url = URL.createObjectURL(newFile);
+    
+        setTempFile(newFile);
+        setPreview(url);
+      })
+      .catch(error => console.error('Error:', error));
+      
+      }
+
+
+
+      function applyTint(color, Intensity){
+        const formData = new FormData();
+        formData.append('file', fileRef.current);
+        formData.append('color', color); 
+        formData.append('intensity', Intensity);
+
+        fetch('https://oyyi.xyz/api/image/tint', {
+          method: 'POST',
+          body: formData
+        })
+        .then(response => response.blob())
+        .then(blob => {
+           const newFile = blobToFile(blob, "editedimage.jpg");
+           const url = URL.createObjectURL(newFile);
+    
+           setTempFile(newFile);
+           setPreview(url);
+        })
+        .catch(error => console.error('Error:', error));
+
       }
 
       function revertPreview(){
         const url = URL.createObjectURL(file);
         setPreview(url);
       }
+
+      function applyInvertion(){
+        const formData = new FormData();
+        formData.append('file', fileRef.current);
+
+      fetch('https://oyyi.xyz/api/image/invert', {
+        method: 'POST',
+        body: formData
+      })
+      .then(response => response.blob())
+      .then(blob => {
+        const newFile = blobToFile(blob, "editedimage.jpg");
+        const url = URL.createObjectURL(newFile);
+    
+        setTempFile(newFile);
+        setPreview(url);
+      })
+      .catch(error => console.error('Error:', error));
+      }
+
+
+      function applyGamma(gamma){
+        const formData = new FormData();
+        formData.append('file', fileRef.current);
+        formData.append('gamma', gamma);
+
+        fetch('https://oyyi.xyz/api/image/gamma-correct', {
+          method: 'POST',
+          body: formData
+        })
+        .then(response => response.blob())
+        .then(blob => {
+         const newFile = blobToFile(blob, "editedimage.jpg");
+         const url = URL.createObjectURL(newFile);
+    
+         setTempFile(newFile);
+         setPreview(url);
+        })
+        .catch(error => console.error('Error:', error));
+      }
+
 
       function saveThreshold(){
         setFile(tempFile);

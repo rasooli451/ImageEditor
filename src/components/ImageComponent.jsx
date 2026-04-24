@@ -5,6 +5,7 @@ import { useState } from "react"
 import Tools from "./Tools"
 import ReactCrop from "react-image-crop";
 import "react-image-crop/dist/ReactCrop.css";
+import ColorAdjustments from "./ColorAdjustments";
 
 export default function ImageComponent({image, selectable, triggerSelect, formSelection, cropFunc, compressFunc, BGremoval, adjustments}){
 
@@ -32,7 +33,6 @@ export default function ImageComponent({image, selectable, triggerSelect, formSe
              const scaleX = naturalImageMeta.width / displayImageMeta.width;
              const scaleY = naturalImageMeta.height / displayImageMeta.height;
              const finalC = {x : Math.round(crop.x * scaleX), y: Math.round(crop.y * scaleY), width : Math.round(crop.width * scaleX), height : Math.round(crop.height * scaleY)};
-             console.log(finalC);
              cropFunc(finalC);
              setCrop(null);
              setDisplayApplyCropButton(false);
@@ -42,6 +42,7 @@ export default function ImageComponent({image, selectable, triggerSelect, formSe
 
     return <div className="display">
         <Tools switchSelect={tempFunc} unimportantfunc={(identity)=> passUpFormSelection(identity)} Compress={compressFunc} removeBG={BGremoval}/>
+        <ColorAdjustments unimportantfunc={(identity)=> passUpFormSelection(identity)}/>
         <div className="ImageContainer">
             { selectable ? 
             <ReactCrop crop={crop} onChange={(c) =>setCrop(c)} unit="px" key={image}>

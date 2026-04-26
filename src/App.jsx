@@ -3,18 +3,29 @@ import './App.css'
 
 import ImageComponent from './components/ImageComponent';
 import Tools from './components/Tools';
-import Resize from './components/forms/Resize';
-import Rotate from './components/forms/Rotate';
-import Flip from './components/forms/Flip';
-import Convert from './components/forms/Convert';
-import Thumbnail from './components/forms/Thumbnail';
-import BasicAdjustments from './components/forms/BasicAdjustments';
-import Threshold from './components/forms/Threshold';
-import Isolation from './components/forms/Isolation';
-import Sepia from './components/forms/Sepia';
-import Invert from './components/forms/Invert';
-import Tint from './components/forms/Tint';
-import Gamma from './components/forms/Gamma';
+import Resize from './components/forms/Basics/Resize.jsx';
+import Rotate from './components/forms/Basics/Rotate.jsx';
+import Flip from './components/forms/Basics/Flip.jsx';
+import Convert from './components/forms/Basics/Convert.jsx';
+import Thumbnail from './components/forms/Basics/Thumbnail.jsx';
+import BasicAdjustments from './components/forms/ColorManipulation/BasicAdjustments';
+import Threshold from './components/forms/ColorManipulation/Threshold';
+import Isolation from './components/forms/ColorManipulation/Isolation';
+import Sepia from './components/forms/ColorManipulation/Sepia';
+import Invert from './components/forms/ColorManipulation/Invert';
+import Tint from './components/forms/ColorManipulation/Tint';
+import Gamma from './components/forms/ColorManipulation/Gamma';
+import Posterize from './components/forms/ColorManipulation/Posterize';
+import AdaptiveContrast from './components/forms/ColorManipulation/AdaptiveContrast.jsx';
+import Blur from './components/forms/Filters/Blur.jsx';
+import Sharpen from './components/forms/Filters/Sharpen.jsx';
+import Cartoon from './components/forms/Filters/Cartoon.jsx';
+import Emboss from './components/forms/Filters/Emboss.jsx';
+import Sketch from './components/forms/Filters/Sketch.jsx';
+import Halftone from './components/forms/Filters/Halftone.jsx';
+import Pixelate from './components/forms/Filters/Pixelate.jsx';
+import Denoise from './components/forms/Filters/Denoise.jsx';
+
 function App() {
 
 
@@ -31,7 +42,7 @@ function App() {
   const fileRef = useRef(null);
 
   const Components = {
-    Resize, Rotate,Flip,Convert, Thumbnail, BasicAdjustments,Threshold, Isolation, Sepia, Invert, Tint, Gamma
+    Resize, Rotate,Flip,Convert, Thumbnail, BasicAdjustments,Threshold, Isolation, Sepia, Invert, Tint, Gamma, Posterize, AdaptiveContrast,Blur, Sharpen, Cartoon, Emboss, Sketch, Halftone,Pixelate,Denoise
   };
 
 
@@ -59,7 +70,17 @@ function App() {
     Sepia : () => applySepia(),
     Invert : () => applyInvertion(),
     Tint: (color, Intensity) => applyTint(color, Intensity),
-    Gamma: (gamma) => applyGamma(gamma)
+    Gamma: (gamma) => applyGamma(gamma),
+    Posterize: (level) => PosterizeImage(level),
+    AdaptiveContrast: (clipLimit, gridSize)=> applyAdaptiveContrast(clipLimit, gridSize),
+    Blur: (intensity)=> applyBlur(intensity),
+    Sharpen: ()=>sharpenImage(),
+    Cartoon: (edgeSize, numOfColors)=> cartoonizeImage(edgeSize, numOfColors),
+    Emboss: ()=> applyEmboss(),
+    Sketch: (style, intensity)=> Sketchify(style, intensity),
+    Halftone: (bgColor, dotSize)=> applyHalftone(bgColor, dotSize),
+    Pixelate: (pixel_size)=> pixelateImage(pixel_size),
+    Denoise : (strength) => denoiseImage(strength)
   };
 
 
@@ -87,6 +108,7 @@ function App() {
     setColorAdjustments({brightness: "100", contrast: "100", grayscale: "0"});
     if (file != null)
         revertPreview();
+    setTempFile(null);
   }
 
   function toggleSelectable(){
@@ -485,11 +507,226 @@ function App() {
 
 
       function saveThreshold(){
-        setFile(tempFile);
-        setTempFile(null);
-        const url = URL.createObjectURL(tempFile);
-        setPreview(url);
+        if (tempFile != null){
+          setFile(tempFile);
+          setTempFile(null);
+          const url = URL.createObjectURL(tempFile);
+          setPreview(url);
+        }
       }
+
+      function PosterizeImage(level){
+        const formData = new FormData();
+        formData.append('file', fileRef.current);
+        formData.append('levels', level);
+
+        fetch('https://oyyi.xyz/api/image/posterize', {
+          method: 'POST',
+          body: formData
+        })
+        .then(response => response.blob())
+        .then(blob => {
+          const newFile = blobToFile(blob, "editedimage.jpg");
+          const url = URL.createObjectURL(newFile);
+    
+          setTempFile(newFile);
+          setPreview(url);
+        })
+        .catch(error => console.error('Error:', error));
+      }
+
+      function applyAdaptiveContrast(clipLimit, gridSize){
+        const formData = new FormData();
+        formData.append('file', fileRef.current);
+        formData.append('clip_limit', clipLimit);
+        formData.append('tile_grid_size', gridSize);
+
+        fetch('https://oyyi.xyz/api/image/adaptive-contrast', {
+          method: 'POST',
+          body: formData
+        })
+        .then(response => response.blob())
+        .then(blob => {
+          const newFile = blobToFile(blob, "editedimage.jpg");
+          const url = URL.createObjectURL(newFile);
+    
+          setTempFile(newFile);
+          setPreview(url);
+        })
+        .catch(error => console.error('Error:', error));
+
+      }
+
+      function applyBlur(intensity){
+        const formData = new FormData();
+        formData.append('file', fileRef.current);
+        formData.append('intensity', intensity);
+
+        fetch('https://oyyi.xyz/api/image/blur', {
+          method: 'POST',
+          body: formData
+        })
+        .then(response => response.blob())
+        .then(blob => {
+          const newFile = blobToFile(blob, "editedimage.jpg");
+          const url = URL.createObjectURL(newFile);
+    
+          setTempFile(newFile);
+          setPreview(url);
+        })
+        .catch(error => console.error('Error:', error));
+      }
+
+      function sharpenImage(){
+        const formData = new FormData();
+        formData.append('file', fileRef.current);
+
+        fetch('https://oyyi.xyz/api/image/sharpen', {
+          method: 'POST',
+          body: formData
+        })
+        .then(response => response.blob())
+        .then(blob => {
+          const newFile = blobToFile(blob, "editedimage.jpg");
+          const url = URL.createObjectURL(newFile);
+    
+          setTempFile(newFile);
+          setPreview(url);
+        })
+        .catch(error => console.error('Error:', error));
+      }
+
+      function cartoonizeImage(edgeSize, numOfColors){
+        const formData = new FormData();
+        formData.append('file', fileRef.current);
+        formData.append('edge_size', edgeSize);
+        formData.append('num_colors', numOfColors);
+
+        fetch('https://oyyi.xyz/api/image/cartoon', {
+          method: 'POST',
+          body: formData
+        })
+        .then(response => response.blob())
+        .then(blob => {
+          const newFile = blobToFile(blob, "editedimage.jpg");
+          const url = URL.createObjectURL(newFile);
+    
+          setTempFile(newFile);
+          setPreview(url);
+
+        })
+      .catch(error => console.error('Error:', error));
+      }
+
+      function applyEmboss(){
+        const formData = new FormData();
+        formData.append('file', fileRef.current);
+
+        fetch('https://oyyi.xyz/api/image/emboss', {
+          method: 'POST',
+          body: formData
+        })
+        .then(response => response.blob())
+        .then(blob => {
+          const newFile = blobToFile(blob, "editedimage.jpg");
+          const url = URL.createObjectURL(newFile);
+    
+          setTempFile(newFile);
+          setPreview(url);
+          
+        })
+        .catch(error => console.error('Error:', error));
+
+      }
+
+      function Sketchify(style, intensity){
+        const formData = new FormData();
+        formData.append('file', fileRef.current);
+        formData.append('style', style);
+        formData.append('intensity', intensity);
+
+        fetch('https://oyyi.xyz/api/image/sketch', {
+          method: 'POST',
+          body: formData
+        })
+        .then(response => response.blob())
+        .then(blob => {
+          const newFile = blobToFile(blob, "editedimage.jpg");
+          const url = URL.createObjectURL(newFile);
+    
+          setTempFile(newFile);
+          setPreview(url);
+          
+          
+        })
+        .catch(error => console.error('Error:', error));
+      }
+
+
+      function applyHalftone(bgColor, dotSize){
+        const formData = new FormData();
+        formData.append('file', fileRef.current);
+        formData.append('dot_size', dotSize);
+        formData.append('background_color', bgColor);
+
+        fetch('https://oyyi.xyz/api/image/halftone', {
+          method: 'POST',
+          body: formData
+        })
+        .then(response => response.blob())
+        .then(blob => {
+          const newFile = blobToFile(blob, "editedimage.jpg");
+          const url = URL.createObjectURL(newFile);
+    
+          setTempFile(newFile);
+          setPreview(url);  
+        })
+        .catch(error => console.error('Error:', error));
+      }
+
+
+      function pixelateImage(pixel_size){
+        const formData = new FormData();
+        formData.append('file', fileRef.current);
+        formData.append('pixel_size', pixel_size);
+
+        fetch('https://oyyi.xyz/api/image/pixelate', {
+          method: 'POST',
+          body: formData
+        })
+        .then(response => response.blob())
+        .then(blob => {
+          const newFile = blobToFile(blob, "editedimage.jpg");
+          const url = URL.createObjectURL(newFile);
+    
+          setTempFile(newFile);
+          setPreview(url);  
+       
+        })
+        .catch(error => console.error('Error:', error));
+              }
+
+      function denoiseImage(strength){
+        const formData = new FormData();
+        formData.append('file', fileRef.current);
+        formData.append('strength', strength);
+
+        fetch('https://oyyi.xyz/api/image/denoise', {
+          method: 'POST',
+          body: formData
+        })
+        .then(response => response.blob())
+        .then(blob => {
+          const newFile = blobToFile(blob, "editedimage.jpg");
+          const url = URL.createObjectURL(newFile);
+    
+          setTempFile(newFile);
+          setPreview(url);  
+        })
+        .catch(error => console.error('Error:', error));
+      }
+
+    
 
   return (
    <div className='content'>

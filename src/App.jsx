@@ -381,11 +381,7 @@ function App() {
           })
           .then(response => response.blob())
           .then(blob => {
-          const newFile = blobToFile(blob, "editedimage.jpg");
-          const url = URL.createObjectURL(newFile);
-          
-          setTempFile(newFile);
-          setPreview(url);
+         updateView(blob);
           })
           .catch(error => console.error('Error:', error));
       }
@@ -406,11 +402,7 @@ function App() {
             })
             .then(response => response.blob())
             .then(blob => {
-             const newFile = blobToFile(blob, "editedimage.jpg");
-             const url = URL.createObjectURL(newFile);
-          
-             setTempFile(newFile);
-             setPreview(url);
+             updateView(blob);
             })
             .catch(error => console.error('Error:', error));
             }
@@ -426,11 +418,7 @@ function App() {
       })
       .then(response => response.blob())
       .then(blob => {
-        const newFile = blobToFile(blob, "editedimage.jpg");
-        const url = URL.createObjectURL(newFile);
-    
-        setTempFile(newFile);
-        setPreview(url);
+        updateView(blob);
       })
       .catch(error => console.error('Error:', error));
       
@@ -450,11 +438,7 @@ function App() {
         })
         .then(response => response.blob())
         .then(blob => {
-           const newFile = blobToFile(blob, "editedimage.jpg");
-           const url = URL.createObjectURL(newFile);
-    
-           setTempFile(newFile);
-           setPreview(url);
+           updateView(blob);
         })
         .catch(error => console.error('Error:', error));
 
@@ -475,11 +459,7 @@ function App() {
       })
       .then(response => response.blob())
       .then(blob => {
-        const newFile = blobToFile(blob, "editedimage.jpg");
-        const url = URL.createObjectURL(newFile);
-    
-        setTempFile(newFile);
-        setPreview(url);
+        updateView(blob);
       })
       .catch(error => console.error('Error:', error));
       }
@@ -496,11 +476,7 @@ function App() {
         })
         .then(response => response.blob())
         .then(blob => {
-         const newFile = blobToFile(blob, "editedimage.jpg");
-         const url = URL.createObjectURL(newFile);
-    
-         setTempFile(newFile);
-         setPreview(url);
+         updateView(blob);
         })
         .catch(error => console.error('Error:', error));
       }
@@ -526,11 +502,7 @@ function App() {
         })
         .then(response => response.blob())
         .then(blob => {
-          const newFile = blobToFile(blob, "editedimage.jpg");
-          const url = URL.createObjectURL(newFile);
-    
-          setTempFile(newFile);
-          setPreview(url);
+          updateView(blob);
         })
         .catch(error => console.error('Error:', error));
       }
@@ -547,11 +519,7 @@ function App() {
         })
         .then(response => response.blob())
         .then(blob => {
-          const newFile = blobToFile(blob, "editedimage.jpg");
-          const url = URL.createObjectURL(newFile);
-    
-          setTempFile(newFile);
-          setPreview(url);
+          updateView(blob);
         })
         .catch(error => console.error('Error:', error));
 
@@ -568,11 +536,7 @@ function App() {
         })
         .then(response => response.blob())
         .then(blob => {
-          const newFile = blobToFile(blob, "editedimage.jpg");
-          const url = URL.createObjectURL(newFile);
-    
-          setTempFile(newFile);
-          setPreview(url);
+          updateView(blob);
         })
         .catch(error => console.error('Error:', error));
       }
@@ -587,11 +551,7 @@ function App() {
         })
         .then(response => response.blob())
         .then(blob => {
-          const newFile = blobToFile(blob, "editedimage.jpg");
-          const url = URL.createObjectURL(newFile);
-    
-          setTempFile(newFile);
-          setPreview(url);
+         updateView(blob);
         })
         .catch(error => console.error('Error:', error));
       }
@@ -608,12 +568,7 @@ function App() {
         })
         .then(response => response.blob())
         .then(blob => {
-          const newFile = blobToFile(blob, "editedimage.jpg");
-          const url = URL.createObjectURL(newFile);
-    
-          setTempFile(newFile);
-          setPreview(url);
-
+          updateView(blob);
         })
       .catch(error => console.error('Error:', error));
       }
@@ -628,12 +583,7 @@ function App() {
         })
         .then(response => response.blob())
         .then(blob => {
-          const newFile = blobToFile(blob, "editedimage.jpg");
-          const url = URL.createObjectURL(newFile);
-    
-          setTempFile(newFile);
-          setPreview(url);
-          
+          updateView(blob);
         })
         .catch(error => console.error('Error:', error));
 
@@ -651,11 +601,7 @@ function App() {
         })
         .then(response => response.blob())
         .then(blob => {
-          const newFile = blobToFile(blob, "editedimage.jpg");
-          const url = URL.createObjectURL(newFile);
-    
-          setTempFile(newFile);
-          setPreview(url);
+         updateView(blob);
           
           
         })
@@ -675,11 +621,7 @@ function App() {
         })
         .then(response => response.blob())
         .then(blob => {
-          const newFile = blobToFile(blob, "editedimage.jpg");
-          const url = URL.createObjectURL(newFile);
-    
-          setTempFile(newFile);
-          setPreview(url);  
+          updateView(blob);
         })
         .catch(error => console.error('Error:', error));
       }
@@ -696,11 +638,7 @@ function App() {
         })
         .then(response => response.blob())
         .then(blob => {
-          const newFile = blobToFile(blob, "editedimage.jpg");
-          const url = URL.createObjectURL(newFile);
-    
-          setTempFile(newFile);
-          setPreview(url);  
+          updateView(blob);
        
         })
         .catch(error => console.error('Error:', error));
@@ -717,13 +655,19 @@ function App() {
         })
         .then(response => response.blob())
         .then(blob => {
-          const newFile = blobToFile(blob, "editedimage.jpg");
-          const url = URL.createObjectURL(newFile);
-    
-          setTempFile(newFile);
-          setPreview(url);  
+          updateView(blob);
         })
         .catch(error => console.error('Error:', error));
+      }
+
+
+      function updateView(blob){
+        const newFile = blobToFile(blob, "editedimage.jpg");
+        const url = URL.createObjectURL(newFile);
+    
+        setTempFile(newFile);
+        setPreview(url);  
+
       }
 
     

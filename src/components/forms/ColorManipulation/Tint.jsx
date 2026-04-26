@@ -15,15 +15,15 @@ export default function Tint({handleFunc, save}){
 
     function updateState(e, callback, lastChanged){
         if (e == null){
-            handleFunc(color, Number(Intensity) / 50);
+            handleFunc(color, Number(Intensity) / 100);
         }
         else{
             callback(e.target.value);
             if (lastChanged == "color"){
-                handleFunc(e.target.value, Intensity);
+                handleFunc(e.target.value, Number(Intensity) / 100);
             }
             else{
-                handleFunc(color, e.target.value);
+                handleFunc(color, Number(e.target.value) / 100);
             }
         }
     }

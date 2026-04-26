@@ -1,7 +1,7 @@
 
-import { useState , useRef} from "react";
-import rotateLeft from "../../icons/rotate-left.png";
-import rotateRight from "../../icons/rotate-right.png";
+import { useState} from "react";
+import rotateLeft from "../../../icons/rotate-left.png";
+import rotateRight from "../../../icons/rotate-right.png";
 
 export default function Rotate({handleFunc}){
 

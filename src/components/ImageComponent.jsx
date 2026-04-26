@@ -6,6 +6,7 @@ import Tools from "./Tools"
 import ReactCrop from "react-image-crop";
 import "react-image-crop/dist/ReactCrop.css";
 import ColorAdjustments from "./ColorAdjustments";
+import FiltersAndEffects from "./FiltersAndEffects";
 
 export default function ImageComponent({image, selectable, triggerSelect, formSelection, cropFunc, compressFunc, BGremoval, adjustments}){
 
@@ -43,6 +44,7 @@ export default function ImageComponent({image, selectable, triggerSelect, formSe
     return <div className="display">
         <Tools switchSelect={tempFunc} unimportantfunc={(identity)=> passUpFormSelection(identity)} Compress={compressFunc} removeBG={BGremoval}/>
         <ColorAdjustments unimportantfunc={(identity)=> passUpFormSelection(identity)}/>
+        <FiltersAndEffects unimportantfunc={(identity)=> passUpFormSelection(identity)} />
         <div className="ImageContainer">
             { selectable ? 
             <ReactCrop crop={crop} onChange={(c) =>setCrop(c)} unit="px" key={image}>

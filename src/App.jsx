@@ -41,11 +41,14 @@ function App() {
   const [FormComponent, setFormComponent] = useState(null);
   const [colorAjustments, setColorAdjustments] = useState({brightness: "100", contrast: "100", grayscale: "0"});
   const [handler, setHandler] = useState(null);
+  const [adjustments, setAdjustments] = useState("Tools");
   const fileRef = useRef(null);
 
   const Components = {
-    Resize, Rotate,Flip,Convert, Thumbnail, BasicAdjustments,Threshold, Isolation, Sepia, Invert, Tint, Gamma, Posterize, AdaptiveContrast,Blur, Sharpen, Cartoon, Emboss, Sketch, Halftone,Pixelate,Denoise
+    Resize, Rotate,Flip,Convert, Thumbnail, BasicAdjustments,Threshold, Isolation, Sepia, Invert, Tint, Gamma, Posterize, AdaptiveContrast,Blur, Sharpen, Cartoon, Emboss, Sketch, Halftone,Pixelate,Denoise, Tools, ColorAdjustments, FiltersAndEffects
   };
+
+  const ButtonsComponent = Components[adjustments];
 
 
 
@@ -672,25 +675,38 @@ function App() {
 
       }
 
+      function updateSettings(e){
+        setAdjustments(e.target.value);
+      }
+
     
 
   return (
    <div className='content'>
     <div className='inputImageSect'>
-      <h1>Image Editor</h1>
-    <button className='uploadbtn' type='button' onClick={toggleForm}>Upload Image</button>
-    
-    {showForm ?  
-    <form action="">
-      <div className='formElement'>
-        <label htmlFor="file">Choose a file: </label>
-        <input type='file' id='file' name='file' required onChange={handleChange}/>
+      <div className='inputBox'>
+        <h1>Image Editor</h1>
+        <button className='uploadbtn' type='button' onClick={toggleForm}>Upload Image</button>
+        {showForm ?  
+        <form>
+          <div className='formElement'>
+            <label htmlFor="file">Choose a file: </label>
+            <input type='file' id='file' name='file' required onChange={handleChange}/>
+          </div>
+        </form>
+        :null}
       </div>
-    </form>
-    :null}
-     <Tools switchSelect={toggleSelectable} unimportantfunc={(identity)=> toggleOptions(identity)} Compress={Compress} removeBG={removeBackground}/>
-     <ColorAdjustments unimportantfunc={(identity)=> toggleOptions(identity)}/>
-     <FiltersAndEffects unimportantfunc={(identity)=> toggleOptions(identity)} />  
+      <div className='settingsInput'>
+        <label htmlFor="settings">Choose Operation Type</label>
+        <select name="settings" id="settings" value={adjustments} onChange={updateSettings}>
+           <option value="Tools">Basic Operations</option>
+           <option value="ColorAdjustments">Color Adjustments</option>
+           <option value="FiltersAndEffects">Filters and Effects</option>
+        </select>
+      </div>
+      <div className='allButtons'>
+        <ButtonsComponent switchSelect={toggleSelectable} unimportantfunc={(identity)=> toggleOptions(identity)} Compress={Compress} removeBG={removeBackground} />
+      </div>  
     </div>
     <ImageComponent image={preview}  selectable={selectable} triggerSelect={toggleSelectable}  cropFunc={(cropObj)=> crop(cropObj)}   adjustments={colorAjustments}/>
       {moreOptions ? <FormComponent handleFunc={handler} adjustments={colorAjustments} setAdjustments={updateAdjustments} revert={revertPreview} save={saveThreshold}/> : null}

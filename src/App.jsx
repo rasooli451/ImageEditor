@@ -25,6 +25,8 @@ import Sketch from './components/forms/Filters/Sketch.jsx';
 import Halftone from './components/forms/Filters/Halftone.jsx';
 import Pixelate from './components/forms/Filters/Pixelate.jsx';
 import Denoise from './components/forms/Filters/Denoise.jsx';
+import ColorAdjustments from './components/ColorAdjustments.jsx';
+import FiltersAndEffects from './components/FiltersAndEffects.jsx';
 
 function App() {
 
@@ -674,7 +676,8 @@ function App() {
 
   return (
    <div className='content'>
-    <h1>Image Editor</h1>
+    <div className='inputImageSect'>
+      <h1>Image Editor</h1>
     <button className='uploadbtn' type='button' onClick={toggleForm}>Upload Image</button>
     
     {showForm ?  
@@ -685,7 +688,11 @@ function App() {
       </div>
     </form>
     :null}
-    <ImageComponent image={preview} file={file} selectable={selectable} triggerSelect={toggleSelectable} formSelection={(identity)=>toggleOptions(identity)} cropFunc={(cropObj)=> crop(cropObj)} compressFunc={Compress} BGremoval={removeBackground} adjustments={colorAjustments}/>
+     <Tools switchSelect={toggleSelectable} unimportantfunc={(identity)=> toggleOptions(identity)} Compress={Compress} removeBG={removeBackground}/>
+     <ColorAdjustments unimportantfunc={(identity)=> toggleOptions(identity)}/>
+     <FiltersAndEffects unimportantfunc={(identity)=> toggleOptions(identity)} />  
+    </div>
+    <ImageComponent image={preview}  selectable={selectable} triggerSelect={toggleSelectable}  cropFunc={(cropObj)=> crop(cropObj)}   adjustments={colorAjustments}/>
       {moreOptions ? <FormComponent handleFunc={handler} adjustments={colorAjustments} setAdjustments={updateAdjustments} revert={revertPreview} save={saveThreshold}/> : null}
         {preview == null ? null : <a href={preview} download={fileName} target="_self">Download</a>}
      </div>

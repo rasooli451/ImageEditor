@@ -8,22 +8,12 @@ import "react-image-crop/dist/ReactCrop.css";
 import ColorAdjustments from "./ColorAdjustments";
 import FiltersAndEffects from "./FiltersAndEffects";
 
-export default function ImageComponent({image, selectable, triggerSelect, formSelection, cropFunc, compressFunc, BGremoval, adjustments}){
+export default function ImageComponent({image, selectable, triggerSelect, cropFunc, adjustments}){
 
     const [crop, setCrop] = useState(null);
-    const [displayApplyCropButton, setDisplayApplyCropButton] = useState(false);
     const [naturalImageMeta, setNaturalImageMeta] = useState(null);
     const [displayImageMeta, setDisplayImageMeta] = useState(null);
 
-
-    function tempFunc(){
-        triggerSelect();
-        setDisplayApplyCropButton(!displayApplyCropButton);
-    }
-
-    function passUpFormSelection(identity){
-        formSelection(identity);
-    }
 
 
     function applyCrop(){
@@ -36,15 +26,11 @@ export default function ImageComponent({image, selectable, triggerSelect, formSe
              const finalC = {x : Math.round(crop.x * scaleX), y: Math.round(crop.y * scaleY), width : Math.round(crop.width * scaleX), height : Math.round(crop.height * scaleY)};
              cropFunc(finalC);
              setCrop(null);
-             setDisplayApplyCropButton(false);
              triggerSelect(); 
         }
     }
 
     return <div className="display">
-        <Tools switchSelect={tempFunc} unimportantfunc={(identity)=> passUpFormSelection(identity)} Compress={compressFunc} removeBG={BGremoval}/>
-        <ColorAdjustments unimportantfunc={(identity)=> passUpFormSelection(identity)}/>
-        <FiltersAndEffects unimportantfunc={(identity)=> passUpFormSelection(identity)} />
         <div className="ImageContainer">
             { selectable ? 
             <ReactCrop crop={crop} onChange={(c) =>setCrop(c)} unit="px" key={image}>
@@ -65,7 +51,7 @@ export default function ImageComponent({image, selectable, triggerSelect, formSe
              grayscale(${adjustments.grayscale}%)`}}/>
             </div> 
             }
-            {displayApplyCropButton ? <button onClick={applyCrop}>Crop</button> : null}
+            {selectable ? <button onClick={applyCrop}>Crop</button> : null}
         </div>
     </div> 
 }

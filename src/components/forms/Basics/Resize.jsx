@@ -34,6 +34,7 @@ export default function Resize({handleFunc}){
 
     return <form>
         {errorState ? <p>{errorMsg}</p> : null}
+        <h4>Resize Image</h4>
         <div className="formElement">
             <label htmlFor="width">Desired Width:</label>
             <input type="number" id="width" name="width" required value={width} onChange={(e)=> handleInput(setWidth, e)}/>
@@ -42,15 +43,14 @@ export default function Resize({handleFunc}){
             <label htmlFor="Height">Desired Height:</label>
             <input type="number" id="Height" name="height" required value={height} onChange={(e)=> handleInput(setHeight, e)}/>
         </div>
-        <div className="formElement">
-            <label htmlFor="yes">Keep Aspect Ratio*:</label>
+        <div className="formElement checkbox">
+            <label htmlFor="yes">Keep Aspect Ratio:</label>
             <input type="radio" name="aspect" id="yes" required ref={keepAspect}/>
         </div>
-        <div className="formElement">
+        <div className="formElement checkbox">
             <label htmlFor="No">Don't Keep Aspect Ratio:</label>
             <input type="radio" name="aspect" id="No" ref={dontKeepAspect}/>
         </div>
-        <p className="sidenote">*If true and both width and height are provided, the image will be resized to fit within the specified dimensions without stretching.</p>
         <button type="submit" onClick={applyEffect}>Apply</button>
     </form>
 }

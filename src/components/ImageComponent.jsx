@@ -8,7 +8,7 @@ import "react-image-crop/dist/ReactCrop.css";
 import ColorAdjustments from "./ColorAdjustments";
 import FiltersAndEffects from "./FiltersAndEffects";
 
-export default function ImageComponent({image, selectable, triggerSelect, cropFunc, adjustments}){
+export default function ImageComponent({image, selectable, triggerSelect, cropFunc, adjustments, fileN}){
 
     const [crop, setCrop] = useState(null);
     const [naturalImageMeta, setNaturalImageMeta] = useState(null);
@@ -42,16 +42,25 @@ export default function ImageComponent({image, selectable, triggerSelect, cropFu
                  }} style={{filter: 
             `brightness(${adjustments.brightness}%)
              contrast(${adjustments.contrast}%)
-             grayscale(${adjustments.grayscale}%)`}}/>
+             grayscale(${adjustments.grayscale}%)`, maxWidth: "100%", maxHeight: "800px", objectFit: "contain"}}/>
             </ReactCrop>: 
             image == null ? <h2>Upload an image to display</h2>: <div>
             <img src={image} className="preview" style={{filter: 
             `brightness(${adjustments.brightness}%)
              contrast(${adjustments.contrast}%)
-             grayscale(${adjustments.grayscale}%)`}}/>
+             grayscale(${adjustments.grayscale}%)`}} onLoad={(e)=> {
+                    const img = e.target;
+                    setNaturalImageMeta({width : img.naturalWidth, height : img.naturalHeight});
+                    const rect = img.getBoundingClientRect();
+                    setDisplayImageMeta({width : rect.width, height: rect.height});
+                 }}/>
             </div> 
             }
-            {selectable ? <button onClick={applyCrop}>Crop</button> : null}
+            <div className="imageDetails">
+                {image == null ? null : naturalImageMeta == null ? null: <span className="dimensions">{naturalImageMeta.width} x {naturalImageMeta.height}</span>}
+            {image == null ? null : <a href={image} download={fileN} target="_self">Download</a>}
+            </div>
         </div>
+        {selectable ? <button onClick={applyCrop}>Crop</button> : null}
     </div> 
 }

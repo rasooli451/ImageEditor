@@ -37,8 +37,7 @@ function App() {
   const [preview, setPreview] = useState(null);
   const [showForm, setShowForm] = useState(false);
   const [selectable, setSelectable] = useState(false);
-  const [moreOptions, setMoreOptions] = useState(false);
-  const [FormComponent, setFormComponent] = useState(null);
+  const [FormComponent, setFormComponent] = useState("Resize");
   const [colorAjustments, setColorAdjustments] = useState({brightness: "100", contrast: "100", grayscale: "0"});
   const [handler, setHandler] = useState(null);
   const [adjustments, setAdjustments] = useState("Tools");
@@ -49,6 +48,7 @@ function App() {
   };
 
   const ButtonsComponent = Components[adjustments];
+  const Form = Components[FormComponent];
 
 
 
@@ -107,8 +107,7 @@ function App() {
 
 
   function toggleOptions(identity){
-    setMoreOptions(!moreOptions);
-    setFormComponent(()=> Components[identity]);
+    setFormComponent(identity);
     setHandler(()=> functions[identity]);
     setColorAdjustments({brightness: "100", contrast: "100", grayscale: "0"});
     if (file != null)
@@ -708,9 +707,10 @@ function App() {
         <ButtonsComponent switchSelect={toggleSelectable} unimportantfunc={(identity)=> toggleOptions(identity)} Compress={Compress} removeBG={removeBackground} />
       </div>  
     </div>
-    <ImageComponent image={preview}  selectable={selectable} triggerSelect={toggleSelectable}  cropFunc={(cropObj)=> crop(cropObj)}   adjustments={colorAjustments}/>
-      {moreOptions ? <FormComponent handleFunc={handler} adjustments={colorAjustments} setAdjustments={updateAdjustments} revert={revertPreview} save={saveThreshold}/> : null}
-        {preview == null ? null : <a href={preview} download={fileName} target="_self">Download</a>}
+    <div className='Main'>
+      <ImageComponent image={preview}  selectable={selectable} triggerSelect={toggleSelectable}  cropFunc={(cropObj)=> crop(cropObj)}   adjustments={colorAjustments} fileN={fileName}/>
+      <Form handleFunc={handler} adjustments={colorAjustments} setAdjustments={updateAdjustments} revert={revertPreview} save={saveThreshold}/>
+    </div>
      </div>
   )
 }
